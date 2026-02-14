@@ -1,0 +1,36 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const posts = (await getCollection('blog'))
+  .filter((post) => !post.data.draft)
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+---
+
+<BaseLayout title="Blog" description="All blog posts">
+  <h1 class="mb-6 text-3xl font-bold">All Posts</h1>
+  <ul class="space-y-6">
+    {posts.map((post) => (
+      <li>
+        <a href={`/blog/${post.id.replace(/\.(mdx?|md)$/, '')}`} class="group block">
+          <h2 class="text-xl font-semibold group-hover:text-blue-600">
+            {post.data.title}
+          </h2>
+          <time class="mt-1 block text-sm text-gray-500">
+            {post.data.pubDate.toLocaleDateString('zh-CN')}
+          </time>
+          <p class="mt-2 text-gray-600">{post.data.description}</p>
+          {post.data.tags.length > 0 && (
+            <div class="mt-2 flex gap-2">
+              {post.data.tags.map((tag: string) => (
+                <span class="rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-600">
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
+        </a>
+      </li>
+    ))}
+  </ul>
+</BaseLayout>

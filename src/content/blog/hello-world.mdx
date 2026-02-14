@@ -1,0 +1,141 @@
+---
+title: 'Claude Code MCP 与 Skills 配置指南'
+description: '为 Astro 博客项目配置 Claude Code 的 MCP 服务器和 Agent Skills，打造 AI 辅助开发工作流'
+pubDate: 2026-02-14
+tags: ['claude-code', 'mcp', 'ai', 'devtools']
+---
+
+# Claude Code MCP 与 Skills 配置指南
+
+这个博客项目全程使用 [Claude Code](https://claude.ai/claude-code) 辅助开发。本文记录如何为项目配置 MCP 服务器和 Agent Skills，让 AI 深度理解你的技术栈。
+
+## 什么是 MCP？
+
+MCP（Model Context Protocol）是一种让 AI 模型连接外部工具和数据源的协议。通过 MCP，Claude Code 可以直接查询组件库文档、搜索 Tailwind 工具类、访问框架 API 参考，而不是依赖训练数据中可能过时的信息。
+
+## 项目 MCP 配置
+
+在项目根目录创建 `.mcp.json`，Claude Code 启动时自动加载：
+
+```json
+{
+  "mcpServers": {
+    "shadcn": {
+      "command": "npx.cmd",
+      "args": ["shadcn@latest", "mcp"]
+    },
+    "astro-docs": {
+      "command": "npx.cmd",
+      "args": ["-y", "mcp-remote", "https://mcp.docs.astro.build/mcp"]
+    },
+    "tailwindcss": {
+      "command": "npx.cmd",
+      "args": ["-y", "tailwindcss-mcp-server"]
+    }
+  }
+}
+```
+
+> **注意**：Windows 环境下使用 `npx.cmd` 而非 `npx`。
+
+### shadcn MCP
+
+[shadcn/ui](https://ui.shadcn.com) 官方 MCP 服务器，提供：
+
+- **组件搜索** — 模糊搜索组件名称和描述
+- **组件详情** — 查看源码、依赖、文件内容
+- **使用示例** — 获取 demo 代码和完整实现
+- **Registry 支持** — 搜索第三方 registry（如 react-bits、magic-ui）
+
+实际使用场景：
+
+```
+我：帮我添加一个带动画的卡片组件
+Claude Code：[调用 shadcn MCP 搜索 card 组件] → [查看示例代码] → [生成定制组件]
+```
+
+### Astro Docs MCP
+
+Astro 官方维护的远程 MCP 服务器，无需本地安装。直接查询最新 Astro 文档，包括 API 参考、集成指南、最佳实践等。
+
+使用 `mcp-remote` 作为 HTTP 传输层连接远程端点 `https://mcp.docs.astro.build/mcp`。
+
+### Tailwind CSS MCP
+
+提供 Tailwind CSS 开发辅助：
+
+- **工具类查询** — 按分类或 CSS 属性查找 Tailwind 类名
+- **文档搜索** — 搜索 Tailwind 官方文档
+- **CSS 转换** — 将传统 CSS 转为 Tailwind 工具类
+- **颜色面板** — 查看完整调色板和自定义颜色生成
+
+## 第三方 Registry
+
+除了官方 shadcn 组件，还可以配置第三方 Registry。在 `components.json` 中添加：
+
+```json
+{
+  "registries": {
+    "@react-bits": "https://reactbits.dev/r/{name}.json"
+  }
+}
+```
+
+安装第三方组件：
+
+```bash
+pnpm dlx shadcn@latest add "https://reactbits.dev/r/SplitText-TS-TW.json"
+pnpm dlx shadcn@latest add "https://reactbits.dev/r/AnimatedContent-TS-TW.json"
+```
+
+## Agent Skills
+
+Skills 是预定义的知识包，让 Claude Code 在特定领域遵循最佳实践。
+
+### 安装
+
+```bash
+# Vercel 官方 React 性能优化规则（40+ 条）
+npx skills add vercel-labs/agent-skills --skill react-best-practices -a claude-code
+
+# Tailwind CSS v4 模式和指令参考
+npx skills add tlq5l/tailwindcss-v4-skill -a claude-code
+```
+
+Skills 安装在 `.agents/skills/` 目录，通过符号链接映射到 `.claude/skills/`。
+
+### react-best-practices
+
+来自 Vercel Engineering，覆盖 8 个类别：
+
+1. **消除瀑布流** — 并行化操作，避免串行 await
+2. **Bundle 优化** — 避免 barrel files，动态导入
+3. **服务端性能** — 序列化最小化，React.cache()
+4. **客户端数据** — SWR，事件监听去重
+5. **渲染优化** — 派生状态，lazy 初始化，useTransition
+6. **渲染性能** — content-visibility，hydration 处理
+7. **JS 性能** — O(1) 查找，不可变操作
+8. **高级模式** — useEffectEvent 等
+
+### tailwindcss-v4
+
+Tailwind CSS v4 的核心变化：
+
+- `@theme` 替代 `tailwind.config.js`
+- `@utility` 创建自定义工具类
+- `@variant` 定义自定义变体
+- `@source` 控制类名检测
+- OKLCH 色彩空间
+
+## 工作流效果
+
+配置完成后，Claude Code 在开发时能够：
+
+| 场景 | 没有 MCP/Skills | 有 MCP/Skills |
+|---|---|---|
+| 添加组件 | 基于记忆生成，可能过时 | 实时查询最新 API 和示例 |
+| 写 Tailwind | 可能用 v3 语法 | 遵循 v4 CSS-first 模式 |
+| 查 Astro API | 可能猜测 | 直接查文档确认 |
+| React 优化 | 基础实现 | 自动应用 40+ 优化规则 |
+
+这就是「给 AI 装上正确的工具」的价值。

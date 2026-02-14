@@ -1,0 +1,164 @@
+---
+title: 'MDX 实战：在 Astro 中构建交互式宝可梦图鉴'
+description: '用 MDX + PokeAPI GraphQL + shadcn/ui + react-bits 在博客文章中嵌入一个完整的交互式宝可梦图鉴'
+pubDate: 2026-02-14
+tags: ['mdx', 'react', 'graphql', 'shadcn-ui', 'react-bits', 'gsap']
+---
+
+import Pokedex from '../../components/Pokedex';
+
+# MDX 实战：在 Astro 中构建交互式宝可梦图鉴
+
+MDX 的魅力在于可以在 Markdown 中直接嵌入 React 组件。下面是一个完整的实战示例 —— 使用 PokeAPI GraphQL 接口构建的宝可梦图鉴。
+
+## 先看效果
+
+<Pokedex client:load />
+
+## 这个组件用了什么
+
+这个图鉴组件同时展示了多项技术的协作：
+
+| 技术 | 用途 |
+|---|---|
+| **PokeAPI GraphQL** | 一次查询获取名称、属性、精灵图、能力值 |
+| **shadcn/ui Card** | 宝可梦卡片布局 |
+| **shadcn/ui Badge** | 属性标签，按属性类型着色 |
+| **shadcn/ui Input** | 搜索框 |
+| **shadcn/ui Skeleton** | 加载骨架屏 |
+| **react-bits SplitText** | 标题逐字 3D 翻转入场动画（GSAP） |
+| **react-bits AnimatedContent** | 卡片和搜索框滚动淡入（GSAP + ScrollTrigger） |
+
+## MDX 中使用 React 组件
+
+在 Astro 的 MDX 文件中嵌入 React 组件非常简单：
+
+```mdx
+---
+title: '我的文章'
+---
+
+import Pokedex from '../../components/Pokedex';
+
+# 标题
+
+正文内容...
+
+<Pokedex client:load />
+```
+
+关键点：
+
+1. **import 语句** — 放在 frontmatter 之后、正文之前
+2. **`client:load` 指令** — 告诉 Astro 在页面加载时立即 hydrate 这个 React 组件
+3. **路径** — MDX 中使用相对路径而非别名（`../../components/` 而非 `@/components/`）
+
+### Hydration 指令选择
+
+Astro 提供多种 hydration 指令，按需选择：
+
+| 指令 | 场景 |
+|---|---|
+| `client:load` | 立即需要交互（如本图鉴需要马上获取数据） |
+| `client:idle` | 页面空闲后加载（低优先级交互） |
+| `client:visible` | 进入视口时加载（长页面底部的组件） |
+| `client:only="react"` | 仅客户端渲染，不做 SSR |
+
+## GraphQL 数据获取
+
+使用原生 `fetch` 调用 PokeAPI GraphQL，无需 Apollo 等重客户端：
+
+```ts
+const GRAPHQL_ENDPOINT = 'https://beta.pokeapi.co/graphql/v1beta';
+
+const QUERY = `
+  query GetPokemons($limit: Int!, $offset: Int!) {
+    pokemon_v2_pokemon(limit: $limit, offset: $offset, order_by: {id: asc}) {
+      id
+      name
+      pokemon_v2_pokemontypes {
+        pokemon_v2_type { name }
+      }
+      pokemon_v2_pokemonsprites { sprites }
+      pokemon_v2_pokemonstats {
+        base_stat
+        pokemon_v2_stat { name }
+      }
+    }
+  }
+`;
+
+const res = await fetch(GRAPHQL_ENDPOINT, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ query: QUERY, variables: { limit: 24, offset: 0 } }),
+});
+```
+
+相比 REST API 需要多次请求（列表 → 详情 → 精灵图），GraphQL **一次查询**就能拿到所有需要的数据。
+
+## react-bits 动画组件
+
+### SplitText — 文字拆分动画
+
+由 GSAP SplitText 插件驱动，将文本拆分为单个字符并逐字动画入场：
+
+```tsx
+<SplitText
+  text="Pokédex"
+  tag="h2"
+  className="text-3xl font-bold"
+  splitType="chars"
+  delay={80}
+  from={{ opacity: 0, y: 30, rotateX: -40 }}
+  to={{ opacity: 1, y: 0, rotateX: 0 }}
+/>
+```
+
+GSAP 3.14 之后，SplitText 等原 Club 专属插件已全部免费，直接从 `gsap/SplitText` 导入。
+
+### AnimatedContent — 滚动淡入
+
+基于 GSAP ScrollTrigger，当元素进入视口时触发入场动画：
+
+```tsx
+<AnimatedContent distance={60} direction="vertical" delay={index * 0.08} duration={0.5}>
+  <Card>...</Card>
+</AnimatedContent>
+```
+
+卡片使用 `delay={index * 0.08}` 实现交错入场效果。
+
+## 属性颜色映射
+
+每种宝可梦属性对应不同的 Badge 颜色：
+
+```ts
+const TYPE_COLORS: Record<string, string> = {
+  fire: 'bg-orange-500',
+  water: 'bg-blue-500',
+  grass: 'bg-green-500',
+  electric: 'bg-yellow-400',
+  psychic: 'bg-pink-500',
+  dragon: 'bg-violet-600',
+  // ...
+};
+```
+
+配合 shadcn/ui 的 Badge 组件：
+
+```tsx
+<Badge className={`${TYPE_COLORS[type]} text-white capitalize border-0`}>
+  {type}
+</Badge>
+```
+
+## 小结
+
+MDX 让博客从静态内容进化为交互式文档。这个宝可梦图鉴示例展示了：
+
+- **MDX** 在 Markdown 中嵌入完整 React 应用
+- **GraphQL** 高效的数据获取
+- **shadcn/ui** 快速构建一致的 UI
+- **react-bits + GSAP** 丝滑的入场动画
+- **Astro Islands** 按需 hydration，不影响页面整体性能

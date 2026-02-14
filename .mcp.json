@@ -1,0 +1,26 @@
+{
+  "mcpServers": {
+    "shadcn": {
+      "command": "npx.cmd",
+      "args": [
+        "shadcn@latest",
+        "mcp"
+      ]
+    },
+    "astro-docs": {
+      "command": "npx.cmd",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "https://mcp.docs.astro.build/mcp"
+      ]
+    },
+    "tailwindcss": {
+      "command": "npx.cmd",
+      "args": [
+        "-y",
+        "tailwindcss-mcp-server"
+      ]
+    }
+  }
+}

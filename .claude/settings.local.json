@@ -1,0 +1,40 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir:*)",
+      "WebSearch",
+      "WebFetch(domain:reactbits.dev)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:docs.astro.build)",
+      "WebFetch(domain:www.reactbits.dev)",
+      "Bash(pnpm create astro@latest . -- --template minimal --typescript strict --install --yes)",
+      "Bash(pnpm astro add:*)",
+      "Bash(pnpm install:*)",
+      "Bash(npx shadcn@latest mcp init:*)",
+      "Bash(npx shadcn@latest init:*)",
+      "Bash(pnpm build:*)",
+      "Bash(npx shadcn@latest mcp)",
+      "Bash(npx shadcn@latest:*)",
+      "Bash(where:*)",
+      "mcp__shadcn__get_project_registries",
+      "WebFetch(domain:www.npmjs.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(npx skills:*)",
+      "Bash(pnpm dev:*)",
+      "mcp__shadcn__get_add_command_for_items",
+      "Bash(pnpm dlx:*)",
+      "mcp__shadcn__search_items_in_registries",
+      "mcp__shadcn__view_items_in_registries",
+      "mcp__shadcn__get_item_examples_from_registries",
+      "Bash(pnpm list:*)",
+      "Bash(node -e:*)",
+      "mcp__astro-docs__search_astro_docs",
+      "WebFetch(domain:localhost)",
+      "Bash(curl:*)"
+    ]
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "shadcn"
+  ]
+}

@@ -1,0 +1,216 @@
+---
+title: 'Astro 博客搭建实践'
+description: '从零搭建现代博客：Astro 5 + React 19 + Tailwind CSS v4 + shadcn/ui，技术选型与配置详解'
+pubDate: 2026-02-14
+tags: ['astro', 'react', 'tailwind-css', 'shadcn-ui']
+---
+
+# Astro 博客搭建实践
+
+记录从零搭建这个博客的完整过程，包括技术选型、项目初始化、工具链配置等。
+
+## 技术栈
+
+| 类别 | 技术 | 版本 |
+|---|---|---|
+| 框架 | Astro | v5.17 |
+| UI 库 | React | v19.2 |
+| 样式 | Tailwind CSS | v4.1 |
+| 组件库 | shadcn/ui (new-york) | latest |
+| 内容 | MDX | @astrojs/mdx v4 |
+| 图标 | Lucide React | v0.564 |
+| 动画 | GSAP | v3.14 |
+| 部署 | GitHub Pages | — |
+
+核心依赖还包括：`class-variance-authority`、`clsx`、`tailwind-merge` 用于组件样式管理，`radix-ui` 作为无障碍基础组件，`tw-animate-css` 提供动画支持。
+
+## 为什么选择 Astro？
+
+Astro 的 **Islands Architecture** 是关键。博客本质上是内容驱动的静态站点，大部分页面不需要 JavaScript。Astro 默认输出纯 HTML，只在需要交互的地方通过 `client:*` 指令激活 React 组件，做到按需加载。
+
+对比其他方案：
+- **Next.js** — 功能强大但对纯博客来说过重，SSR 模式对静态内容是浪费
+- **VitePress** — 绑定 Vue 生态，灵活性不够
+- **Astro** — 多框架支持、默认零 JS、内置内容集合，天然适合博客
+
+## 项目初始化
+
+```bash
+# 创建项目
+pnpm create astro@latest leo-astro-blog
+
+# 添加集成
+pnpm astro add react
+pnpm astro add mdx
+```
+
+### Astro 配置
+
+```js
+// astro.config.mjs
+import { defineConfig } from 'astro/config';
+import react from '@astrojs/react';
+import mdx from '@astrojs/mdx';
+import tailwindcss from '@tailwindcss/vite';
+
+export default defineConfig({
+  site: 'https://cybermanhao.github.io',
+  output: 'static',
+  integrations: [react(), mdx()],
+  vite: {
+    plugins: [tailwindcss()],
+  },
+});
+```
+
+关键点：Tailwind CSS v4 不再作为 Astro 集成，而是通过 `@tailwindcss/vite` 插件接入 Vite。
+
+### TypeScript 配置
+
+```json
+{
+  "extends": "astro/tsconfigs/strict",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "jsxImportSource": "react",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  }
+}
+```
+
+路径别名 `@/*` 映射到 `./src/*`，让导入更简洁。
+
+## Tailwind CSS v4 配置
+
+v4 最大的变化是 **CSS-first 配置**，不再需要 `tailwind.config.js`，所有主题配置直接写在 CSS 中：
+
+```bash
+# 安装
+pnpm add tailwindcss @tailwindcss/vite
+```
+
+在全局样式文件中通过 `@import "tailwindcss"` 引入，使用 `@theme` 定义设计令牌：
+
+```css
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-lg: var(--radius);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  /* ... 更多 CSS 变量映射 */
+}
+```
+
+## shadcn/ui 集成
+
+shadcn/ui 不是传统 npm 包，而是通过 CLI 将组件源码拷贝到项目中，完全可定制。
+
+```bash
+# 初始化（生成 components.json）
+pnpm dlx shadcn@latest init
+
+# 添加组件
+pnpm dlx shadcn@latest add button card badge input skeleton
+```
+
+### components.json 配置
+
+```json
+{
+  "style": "new-york",
+  "rsc": false,
+  "tsx": true,
+  "tailwind": {
+    "css": "src/styles/global.css",
+    "baseColor": "neutral",
+    "cssVariables": true
+  },
+  "aliases": {
+    "components": "@/components",
+    "utils": "@/lib/utils",
+    "ui": "@/components/ui"
+  }
+}
+```
+
+注意 `rsc: false`，因为 Astro 不是 React Server Components 环境。
+
+## 内容集合
+
+Astro 的 Content Collections 提供类型安全的内容管理：
+
+```ts
+// src/content/config.ts
+import { defineCollection, z } from 'astro:content';
+
+const blog = defineCollection({
+  type: 'content',
+  schema: z.object({
+    title: z.string(),
+    description: z.string(),
+    pubDate: z.coerce.date(),
+    updatedDate: z.coerce.date().optional(),
+    tags: z.array(z.string()).default([]),
+    draft: z.boolean().default(false),
+  }),
+});
+
+export const collections = { blog };
+```
+
+文章使用 MDX 格式，可以在 Markdown 中直接使用 React 组件。关于 MDX 的详细用法，参见 [MDX 实战：在 Astro 中构建交互式宝可梦图鉴](/blog/mdx-pokedex-demo)。
+
+## 项目结构
+
+```
+leo-astro-blog/
+├── src/
+│   ├── components/
+│   │   ├── ui/              # shadcn/ui 组件
+│   │   ├── SplitText.tsx    # react-bits 文字动画
+│   │   ├── AnimatedContent.tsx  # react-bits 内容动画
+│   │   └── Pokedex.tsx      # 宝可梦图鉴（MDX 演示）
+│   ├── content/blog/        # MDX 博客文章
+│   ├── layouts/             # 页面布局
+│   ├── lib/utils.ts         # cn() 工具函数
+│   ├── pages/               # 路由页面
+│   └── styles/global.css    # Tailwind + 主题变量
+├── .mcp.json                # Claude Code MCP 配置
+├── .agents/skills/          # AI Agent Skills
+├── components.json          # shadcn/ui 配置
+├── astro.config.mjs         # Astro 配置
+└── tsconfig.json            # TypeScript 配置
+```
+
+## 常用命令
+
+```bash
+# 开发
+pnpm dev              # http://localhost:4321
+
+# 构建与预览
+pnpm build
+pnpm preview
+
+# 添加 shadcn 组件
+pnpm dlx shadcn@latest add [component]
+
+# 添加 react-bits 动画组件
+pnpm dlx shadcn@latest add "https://reactbits.dev/r/[Component]-TS-TW.json"
+```
+
+## 下一步
+
+- 完善页面布局和导航
+- 添加暗色模式切换
+- 配置 GitHub Actions 自动部署
+- 添加更多交互组件和动画效果
