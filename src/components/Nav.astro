@@ -1,6 +1,6 @@
 ---
 import { SITE_TITLE, SITE_NAV } from '../consts';
-import DecryptedText from './DecryptedText';
+import Shuffle from './Shuffle';
 import ThemeToggle from './ThemeToggle';
 import { Search } from 'lucide-react';
 ---
@@ -9,15 +9,18 @@ import { Search } from 'lucide-react';
   <nav class="mx-auto max-w-3xl flex items-center justify-between px-6 py-3">
     <!-- Site title -->
     <a href="/" class="font-tech text-xl font-bold text-primary hover:glow-cyan transition-all">
-      <DecryptedText
+      <Shuffle
         client:load
         text={SITE_TITLE}
-        animateOn="view"
-        speed={60}
-        sequential={true}
-        revealDirection="start"
-        className="text-primary"
-        encryptedClassName="text-muted-foreground"
+        className="text-primary font-tech text-xl"
+        tag="span"
+        textAlign="left"
+        duration={0.3}
+        stagger={0.03}
+        shuffleTimes={2}
+        scrambleCharset="░▒▓█■□◆●★♦"
+        shuffleDirection="right"
+        triggerOnHover={true}
       />
     </a>
 

@@ -1,6 +1,5 @@
 ---
 import { SOCIAL_LINKS } from '../consts';
-import ShinyText from './ShinyText';
 ---
 
 <footer class="border-t border-border mt-20">
@@ -37,14 +36,9 @@ import ShinyText from './ShinyText';
       </div>
 
       <!-- Copyright -->
-      <div class="text-sm text-muted-foreground">
-        <ShinyText
-          client:visible
-          text={`© ${new Date().getFullYear()} Leo Ji. Built with Astro.`}
-          speed={3}
-          className="text-muted-foreground"
-        />
-      </div>
+      <p class="text-sm text-muted-foreground font-tech tracking-widest tabular-nums">
+        © {new Date().getFullYear()} Leo Ji — Built with Astro
+      </p>
     </div>
   </div>
 </footer>
