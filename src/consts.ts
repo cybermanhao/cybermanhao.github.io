@@ -12,5 +12,5 @@ export const SOCIAL_LINKS = {
   github: "https://github.com/cybermanhao",
   linkedin: "https://linkedin.com/in/leo-ji-966923393",
   email: "mailto:cybermanhao@gmail.com",
-  bilibili: "https://space.bilibili.com/",
+  bilibili: "https://space.bilibili.com/2633796",
 } as const;
