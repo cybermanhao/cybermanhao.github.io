@@ -1,5 +1,13 @@
 ---
 import '../styles/global.css';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import Noise from '../components/Noise';
+import ClickSpark from '../components/ClickSpark';
+import SearchDialog from '../components/SearchDialog';
+import NavDock from '../components/NavDock';
+import CyberEffects from '../components/CyberEffects';
+import { SITE_TITLE } from '../consts';
 
 interface Props {
   title: string;
@@ -7,6 +15,7 @@ interface Props {
 }
 
 const { title, description = '' } = Astro.props;
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 ---
 
 <!doctype html>
@@ -17,23 +26,46 @@ const { title, description = '' } = Astro.props;
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content={Astro.generator} />
     {description && <meta name="description" content={description} />}
+    <meta property="og:title" content={title} />
+    {description && <meta property="og:description" content={description} />}
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalURL} />
+    <link rel="canonical" href={canonicalURL} />
+    <link rel="alternate" type="application/rss+xml" title={SITE_TITLE} href="/rss.xml" />
     <title>{title}</title>
+
+    <!-- Dark mode init (runs before paint to prevent flash) -->
+    <script is:inline>
+      (function() {
+        const theme = localStorage.getItem('theme');
+        if (theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+          document.documentElement.classList.add('dark');
+        }
+      })();
+    </script>
   </head>
-  <body class="min-h-screen bg-white text-gray-900">
-    <header class="border-b border-gray-200 px-6 py-4">
-      <nav class="mx-auto flex max-w-3xl items-center justify-between">
-        <a href="/" class="text-xl font-bold">Leo's Blog</a>
-        <div class="flex gap-4">
-          <a href="/" class="hover:text-blue-600">Home</a>
-          <a href="/blog" class="hover:text-blue-600">Blog</a>
-        </div>
-      </nav>
-    </header>
-    <main class="mx-auto max-w-3xl px-6 py-8">
-      <slot />
-    </main>
-    <footer class="border-t border-gray-200 px-6 py-4 text-center text-sm text-gray-500">
-      &copy; {new Date().getFullYear()} Leo's Blog. All rights reserved.
-    </footer>
+  <body class="min-h-screen bg-background text-foreground antialiased">
+    <!-- Film grain overlay -->
+    <div class="fixed inset-0 z-[100] pointer-events-none opacity-[0.03]">
+      <Noise client:load patternAlpha={12} patternRefreshInterval={3} />
+    </div>
+
+    <!-- Background ribbons (desktop only) -->
+    <CyberEffects client:load />
+
+    <!-- Search dialog -->
+    <SearchDialog client:load />
+
+    <!-- Dock navigation (desktop) -->
+    <NavDock client:load />
+
+    <!-- Click spark effect -->
+    <ClickSpark client:load sparkColor="oklch(0.82 0.15 192)" sparkSize={10} sparkCount={8} duration={400}>
+      <Nav />
+      <main class="mx-auto max-w-3xl px-6 pt-24 pb-16 lg:pb-24 relative z-10">
+        <slot />
+      </main>
+      <Footer />
+    </ClickSpark>
   </body>
 </html>

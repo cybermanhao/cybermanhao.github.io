@@ -1,0 +1,82 @@
+---
+import { SITE_TITLE, SITE_NAV } from '../consts';
+import DecryptedText from './DecryptedText';
+import ThemeToggle from './ThemeToggle';
+import { Search } from 'lucide-react';
+---
+
+<header class="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
+  <nav class="mx-auto max-w-3xl flex items-center justify-between px-6 py-3">
+    <!-- Site title -->
+    <a href="/" class="font-tech text-xl font-bold text-primary hover:glow-cyan transition-all">
+      <DecryptedText
+        client:load
+        text={SITE_TITLE}
+        animateOn="view"
+        speed={60}
+        sequential={true}
+        revealDirection="start"
+        className="text-primary"
+        encryptedClassName="text-muted-foreground"
+      />
+    </a>
+
+    <!-- Desktop nav links -->
+    <div class="hidden md:flex items-center gap-1">
+      {SITE_NAV.map((item) => (
+        <a
+          href={item.href}
+          class="px-3 py-1.5 text-sm font-medium text-muted-foreground hover:text-primary transition-colors rounded-md hover:bg-muted"
+        >
+          {item.label}
+        </a>
+      ))}
+      <button
+        id="search-trigger"
+        class="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-primary ml-1"
+        aria-label="搜索"
+      >
+        <Search className="h-4 w-4" client:load />
+      </button>
+      <ThemeToggle client:load />
+    </div>
+
+    <!-- Mobile hamburger -->
+    <div class="flex md:hidden items-center gap-2">
+      <ThemeToggle client:load />
+      <button
+        id="mobile-menu-toggle"
+        class="p-2 rounded-lg hover:bg-muted transition-colors"
+        aria-label="菜单"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Mobile menu -->
+  <div id="mobile-menu" class="hidden md:hidden border-t border-border bg-background/95 backdrop-blur-md">
+    <div class="px-6 py-4 space-y-2">
+      {SITE_NAV.map((item) => (
+        <a
+          href={item.href}
+          class="block px-3 py-2 text-sm font-medium text-muted-foreground hover:text-primary hover:bg-muted rounded-md transition-colors"
+        >
+          {item.label}
+        </a>
+      ))}
+    </div>
+  </div>
+</header>
+
+<script>
+  const toggle = document.getElementById('mobile-menu-toggle');
+  const menu = document.getElementById('mobile-menu');
+  if (toggle && menu) {
+    toggle.addEventListener('click', () => {
+      menu.classList.toggle('hidden');
+    });
+  }
+</script>

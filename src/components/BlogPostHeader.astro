@@ -1,0 +1,59 @@
+---
+import SplitText from './SplitText';
+import { Badge } from './ui/badge';
+
+interface Props {
+  title: string;
+  pubDate: Date;
+  tags: string[];
+  body?: string;
+}
+
+const { title, pubDate, tags, body = '' } = Astro.props;
+
+// Estimate reading time (~300 chars/min for Chinese, ~200 words/min for English)
+const charCount = body.length;
+const readingTime = Math.max(1, Math.ceil(charCount / 600));
+---
+
+<header class="mb-10 not-prose">
+  <div class="mb-4">
+    <SplitText
+      client:visible
+      text={title}
+      tag="h1"
+      splitType="chars"
+      delay={30}
+      duration={0.8}
+      ease="power3.out"
+      from={{ opacity: 0, y: 30 }}
+      to={{ opacity: 1, y: 0 }}
+      textAlign="left"
+      className="text-3xl md:text-4xl font-bold font-tech"
+    />
+  </div>
+
+  <div class="flex items-center gap-3 text-sm text-muted-foreground">
+    <time datetime={pubDate.toISOString()}>
+      {pubDate.toLocaleDateString('zh-CN', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      })}
+    </time>
+    <span class="text-border">|</span>
+    <span>{readingTime} 分钟阅读</span>
+  </div>
+
+  {tags.length > 0 && (
+    <div class="mt-4 flex flex-wrap gap-2">
+      {tags.map((tag: string) => (
+        <a href={`/blog?tag=${encodeURIComponent(tag)}`}>
+          <Badge variant="outline" className="hover:bg-primary/10 hover:border-primary/50 transition-colors cursor-pointer font-tech text-xs">
+            #{tag}
+          </Badge>
+        </a>
+      ))}
+    </div>
+  )}
+</header>

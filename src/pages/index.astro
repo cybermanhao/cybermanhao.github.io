@@ -2,31 +2,92 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
 import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
+import HeroSection from '../components/HeroSection';
+import PostCard from '../components/PostCard.astro';
+import BlurText from '../components/BlurText';
+import FadeContent from '../components/FadeContent';
+import LogoLoop from '../components/LogoLoop';
 
 const posts = (await getCollection('blog'))
   .filter((post) => !post.data.draft)
-  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+  .slice(0, 6);
+
+const techLogos = [
+  { node: 'Astro' },
+  { node: 'React' },
+  { node: 'TypeScript' },
+  { node: 'Tailwind' },
+  { node: 'Node.js' },
+  { node: 'Python' },
+  { node: 'Next.js' },
+  { node: 'Vue' },
+  { node: 'GSAP' },
+  { node: 'GraphQL' },
+];
 ---
 
 <BaseLayout title={SITE_TITLE} description={SITE_DESCRIPTION}>
-  <h1 class="mb-6 text-3xl font-bold">Latest Posts</h1>
-  {posts.length === 0 ? (
-    <p class="text-gray-500">No posts yet. Stay tuned!</p>
-  ) : (
-    <ul class="space-y-6">
-      {posts.map((post) => (
-        <li>
-          <a href={`/blog/${post.id.replace(/\.(mdx?|md)$/, '')}`} class="group block">
-            <h2 class="text-xl font-semibold group-hover:text-blue-600">
-              {post.data.title}
-            </h2>
-            <p class="mt-1 text-sm text-gray-500">
-              {post.data.pubDate.toLocaleDateString('zh-CN')}
-            </p>
-            <p class="mt-2 text-gray-600">{post.data.description}</p>
-          </a>
-        </li>
-      ))}
-    </ul>
-  )}
+  <!-- Hero -->
+  <HeroSection client:load />
+
+  <!-- Recent Posts -->
+  <section class="mt-20">
+    <div class="mb-8">
+      <BlurText
+        client:visible
+        text="最新文章"
+        className="text-2xl font-bold font-tech"
+        delay={100}
+        animateBy="letters"
+      />
+    </div>
+
+    {posts.length === 0 ? (
+      <p class="text-muted-foreground">暂无文章，敬请期待！</p>
+    ) : (
+      <div class="grid gap-4 md:grid-cols-2">
+        {posts.map((post, i) => (
+          <FadeContent client:visible delay={i * 100} duration={600} blur={true}>
+            <PostCard
+              title={post.data.title}
+              description={post.data.description}
+              pubDate={post.data.pubDate}
+              tags={post.data.tags}
+              slug={post.id.replace(/\.(mdx?|md)$/, '')}
+            />
+          </FadeContent>
+        ))}
+      </div>
+    )}
+
+    <div class="mt-8 text-center">
+      <a
+        href="/blog"
+        class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-tech font-medium border border-border rounded-lg hover:border-primary/50 hover:bg-muted transition-colors"
+      >
+        查看全部文章
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+        </svg>
+      </a>
+    </div>
+  </section>
+
+  <!-- Tech Stack Marquee -->
+  <section class="mt-20 mb-8">
+    <p class="text-center text-xs text-muted-foreground font-tech uppercase tracking-widest mb-6">
+      Tech Stack
+    </p>
+    <LogoLoop
+      client:visible
+      logos={techLogos}
+      speed={30}
+      direction="left"
+      pauseOnHover={true}
+      fadeOut={true}
+      gap={48}
+      logoHeight={24}
+    />
+  </section>
 </BaseLayout>

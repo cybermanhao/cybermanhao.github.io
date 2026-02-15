@@ -1,0 +1,50 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import GlitchText from '../components/GlitchText';
+import DecryptedText from '../components/DecryptedText';
+import Magnet from '../components/Magnet';
+---
+
+<BaseLayout title="404 — 限制解除！">
+  <div class="flex flex-col items-center justify-center min-h-[60vh] text-center">
+    <div class="mb-6">
+      <GlitchText
+        client:load
+        speed={0.3}
+        enableShadows={true}
+        className="text-8xl md:text-9xl font-bold font-tech text-primary"
+      >
+        404
+      </GlitchText>
+    </div>
+
+    <div class="mb-8 max-w-md">
+      <DecryptedText
+        client:load
+        text="ACCESS DENIED — 页面未找到"
+        speed={40}
+        sequential={true}
+        revealDirection="center"
+        animateOn="view"
+        className="text-xl md:text-2xl text-muted-foreground font-tech"
+        encryptedClassName="text-primary/30"
+      />
+    </div>
+
+    <p class="text-sm text-muted-foreground mb-8 font-tech">
+      你试图访问的页面不存在，或已被移至其他位置。
+    </p>
+
+    <Magnet client:load padding={60} magnetStrength={3}>
+      <a
+        href="/"
+        class="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-primary text-primary-foreground font-tech text-sm font-medium border-glow hover:scale-105 transition-transform"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        返回首页
+      </a>
+    </Magnet>
+  </div>
+</BaseLayout>
