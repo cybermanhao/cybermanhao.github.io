@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { projects } from '../data/projects';
-import GlitchText from '../components/GlitchText';
+import SplitText from '../components/SplitText';
 import SpotlightCard from '../components/SpotlightCard';
 import FadeContent from '../components/FadeContent';
 import { Badge } from '../components/ui/badge';
@@ -9,14 +9,17 @@ import { Badge } from '../components/ui/badge';
 
 <BaseLayout title="项目 — 限制解除！" description="个人项目展示">
   <div class="mb-8">
-    <GlitchText
-      client:load
-      speed={0.4}
-      enableShadows={true}
+    <SplitText
+      client:visible
+      text="项目展示"
+      tag="h1"
+      splitType="chars"
+      delay={40}
+      duration={0.8}
+      ease="power3.out"
+      textAlign="left"
       className="text-3xl font-bold font-tech"
-    >
-      项目展示
-    </GlitchText>
+    />
     <p class="mt-3 text-muted-foreground">一些值得分享的项目和作品。</p>
   </div>
 

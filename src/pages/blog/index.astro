@@ -3,7 +3,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
 import PostCard from '../../components/PostCard.astro';
 import FadeContent from '../../components/FadeContent';
-import GlitchText from '../../components/GlitchText';
+import SplitText from '../../components/SplitText';
 import { Badge } from '../../components/ui/badge';
 
 const allPosts = (await getCollection('blog'))
@@ -22,14 +22,17 @@ const posts = selectedTag
 
 <BaseLayout title="博客 — 限制解除！" description="所有博客文章">
   <div class="mb-8">
-    <GlitchText
-      client:load
-      speed={0.4}
-      enableShadows={true}
+    <SplitText
+      client:visible
+      text="博客文章"
+      tag="h1"
+      splitType="chars"
+      delay={40}
+      duration={0.8}
+      ease="power3.out"
+      textAlign="left"
       className="text-3xl font-bold font-tech"
-    >
-      博客文章
-    </GlitchText>
+    />
   </div>
 
   <!-- Tag filter -->

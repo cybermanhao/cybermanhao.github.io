@@ -25,12 +25,11 @@ export default function HeroSection() {
       <div className="relative z-10 flex flex-col items-center justify-center min-h-[70vh] px-6 text-center">
         <div className="mb-6">
           <GlitchText
-            speed={0.5}
+            text="限制解除！"
+            speed={1.5}
             enableShadows={true}
             className="text-5xl md:text-7xl font-bold font-tech"
-          >
-            限制解除！
-          </GlitchText>
+          />
         </div>
 
         <div className="mb-8 max-w-lg">

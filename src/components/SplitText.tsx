@@ -13,8 +13,10 @@ export interface SplitTextProps {
   duration?: number;
   ease?: string | ((t: number) => number);
   splitType?: 'chars' | 'words' | 'lines' | 'words, chars';
-  from?: gsap.TweenVars;
-  to?: gsap.TweenVars;
+  /** JSON string for gsap from vars, e.g. '{"opacity":0,"y":40}' */
+  fromJson?: string;
+  /** JSON string for gsap to vars, e.g. '{"opacity":1,"y":0}' */
+  toJson?: string;
   threshold?: number;
   rootMargin?: string;
   tag?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'p' | 'span';
@@ -29,14 +31,16 @@ const SplitText: React.FC<SplitTextProps> = ({
   duration = 1.25,
   ease = 'power3.out',
   splitType = 'chars',
-  from = { opacity: 0, y: 40 },
-  to = { opacity: 1, y: 0 },
+  fromJson,
+  toJson,
   threshold = 0.1,
   rootMargin = '-100px',
   tag = 'p',
   textAlign = 'center',
   onLetterAnimationComplete
 }) => {
+  const from: gsap.TweenVars = fromJson ? JSON.parse(fromJson) : { opacity: 0, y: 40 };
+  const to: gsap.TweenVars = toJson ? JSON.parse(toJson) : { opacity: 1, y: 0 };
   const ref = useRef<HTMLParagraphElement>(null);
   const animationCompletedRef = useRef(false);
   const onCompleteRef = useRef(onLetterAnimationComplete);

@@ -1,7 +1,7 @@
 import type { FC, CSSProperties } from 'react';
 
 interface GlitchTextProps {
-  children: string;
+  text: string;
   speed?: number;
   enableShadows?: boolean;
   className?: string;
@@ -15,8 +15,8 @@ interface CustomCSSProperties extends CSSProperties {
 }
 
 const GlitchText: FC<GlitchTextProps> = ({
-  children,
-  speed = 0.5,
+  text,
+  speed = 1,
   enableShadows = true,
   className = ''
 }) => {
@@ -30,8 +30,8 @@ const GlitchText: FC<GlitchTextProps> = ({
   const combinedClasses = `glitch-text relative inline-block select-none ${className}`;
 
   return (
-    <div style={inlineStyles} data-text={children} className={combinedClasses}>
-      {children}
+    <div style={inlineStyles} data-text={text} className={combinedClasses}>
+      {text}
     </div>
   );
 };
