@@ -3,7 +3,7 @@ import { Home, BookOpen, FolderOpen, User, Search, Sun, Moon, Rss } from 'lucide
 import { useState, useEffect } from 'react';
 
 export default function NavDock() {
-  const [dark, setDark] = useState(false);
+  const [dark, setDark] = useState(true); // 默认为深色模式
 
   useEffect(() => {
     setDark(document.documentElement.classList.contains('dark'));
