@@ -1,5 +1,8 @@
 # 限制解除！ — Leo's Astro Blog
 
+click this link to my blog
+https://cybermanhao.github.io/
+
 Astro 5 + React 19 + Tailwind CSS v4 + shadcn/ui cyberpunk blog.
 
 ## Commands
