@@ -41,7 +41,6 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
         if (theme === 'light') {
           document.documentElement.classList.remove('dark');
         } else {
-          // Default to dark theme
           document.documentElement.classList.add('dark');
         }
       })();
@@ -50,20 +49,20 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
   <body class="min-h-screen bg-background text-foreground antialiased">
     <!-- Film grain overlay -->
     <div class="fixed inset-0 z-[100] pointer-events-none opacity-[0.03]">
-      <Noise client:load patternAlpha={12} patternRefreshInterval={3} />
+      <Noise client:idle patternAlpha={12} patternRefreshInterval={3} />
     </div>
 
     <!-- Background ribbons (desktop only) -->
-    <CyberEffects client:load />
+    <CyberEffects client:idle />
 
-    <!-- Search dialog -->
+    <!-- Search dialog (keep client:load for keyboard shortcut) -->
     <SearchDialog client:load />
 
     <!-- Dock navigation (desktop) -->
-    <NavDock client:load />
+    <NavDock client:idle />
 
     <!-- Click spark effect -->
-    <ClickSpark client:load sparkColor="oklch(0.82 0.15 192)" sparkSize={10} sparkCount={8} duration={400}>
+    <ClickSpark client:idle sparkColor="oklch(0.82 0.15 192)" sparkSize={10} sparkCount={8} duration={400}>
       <Nav />
       <main class="mx-auto max-w-3xl px-6 pt-24 pb-16 lg:pb-24 relative z-10">
         <slot />

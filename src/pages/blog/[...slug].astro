@@ -3,17 +3,20 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection, render } from 'astro:content';
 import BlogPostHeader from '../../components/BlogPostHeader.astro';
 import TableOfContents from '../../components/TableOfContents';
+import { getPostSlug, prefetchWaifuBatch, resolvePostCover } from '../../lib/blog';
 
 export async function getStaticPaths() {
   const posts = await getCollection('blog');
   return posts.map((post) => ({
-    params: { slug: post.id.replace(/\.(mdx?|md)$/, '') },
+    params: { slug: getPostSlug(post.id) },
     props: post,
   }));
 }
 
 const post = Astro.props;
 const { Content, headings } = await render(post);
+if (!post.data.cover) await prefetchWaifuBatch(1);
+const cover = await resolvePostCover(post.data.cover);
 ---
 
 <BaseLayout title={post.data.title} description={post.data.description}>
@@ -21,8 +24,10 @@ const { Content, headings } = await render(post);
     <BlogPostHeader
       title={post.data.title}
       pubDate={post.data.pubDate}
+      updatedDate={post.data.updatedDate}
       tags={post.data.tags}
       body={post.body || ''}
+      cover={cover}
     />
     <article class="prose max-w-none">
       <Content />

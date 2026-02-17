@@ -34,7 +34,9 @@
       "mcp__shadcn__list_items_in_registries",
       "Bash(pnpm add:*)",
       "Bash(npx astro build:*)",
-      "Bash(pnpm ls:*)"
+      "Bash(pnpm ls:*)",
+      "WebFetch(domain:api.waifu.pics)",
+      "Bash(npx astro dev:*)"
     ]
   },
   "enableAllProjectMcpServers": true,

@@ -1,43 +1,89 @@
-# Astro Starter Kit: Minimal
+# 限制解除！ — Leo's Astro Blog
 
-```sh
-pnpm create astro@latest -- --template minimal
+Astro 5 + React 19 + Tailwind CSS v4 + shadcn/ui cyberpunk blog.
+
+## Commands
+
+| Command          | Action                                      |
+| :--------------- | :------------------------------------------ |
+| `pnpm install`   | Install dependencies                        |
+| `pnpm dev`       | Start dev server at `localhost:4321`         |
+| `pnpm build`     | Build production site to `./dist/`           |
+| `pnpm preview`   | Preview build locally                       |
+
+## Writing Blog Posts
+
+每篇文章是 `src/content/blog/` 下的一个子目录，目录名即 URL slug：
+
+```
+src/content/blog/
+  ├── my-post/
+  │   ├── index.mdx       # 文章内容
+  │   ├── cover.jpg        # 封面图
+  │   └── screenshot.png   # 正文插图
+  ├── another-post/
+  │   └── index.mdx        # 无封面 → 自动 waifu 随机图
+  ...
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+### Frontmatter
 
-## 🚀 Project Structure
-
-Inside of your Astro project, you'll see the following folders and files:
-
-```text
-/
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
+```yaml
+---
+title: '文章标题'
+description: '文章简介'
+pubDate: 2026-02-16
+tags: ['tag1', 'tag2']
+cover: ./cover.jpg
+---
 ```
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+| Field         | Required | Description                          |
+| :------------ | :------- | :----------------------------------- |
+| `title`       | Yes      | 文章标题                              |
+| `description` | Yes      | 简短描述，用于卡片和 SEO              |
+| `pubDate`     | Yes      | 发布日期 `YYYY-MM-DD`                |
+| `tags`        | No       | 标签数组，默认 `[]`                   |
+| `draft`       | No       | 设为 `true` 则不发布，默认 `false`    |
+| `cover`       | No       | 封面图相对路径                        |
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+### Cover Image (封面图)
 
-Any static assets, like images, can be placed in the `public/` directory.
+#### 1. 本地图片 — 与文章同目录（推荐）
 
-## 🧞 Commands
+```yaml
+cover: ./cover.jpg
+```
 
-All commands are run from the root of the project, from a terminal:
+把图片放在文章同目录下，用 `./` 相对路径引用。Astro 会自动优化（生成 webp、多尺寸 srcset）。
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `pnpm install`             | Installs dependencies                            |
-| `pnpm dev`             | Starts local dev server at `localhost:4321`      |
-| `pnpm build`           | Build your production site to `./dist/`          |
-| `pnpm preview`         | Preview your build locally, before deploying     |
-| `pnpm astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `pnpm astro -- --help` | Get help using the Astro CLI                     |
+#### 2. 不设置 — 自动使用 waifu 随机图
 
-## 👀 Want to learn more?
+如果不提供 `cover` 字段，构建时会自动从 [waifu.pics API](https://waifu.pics) 获取一张随机二次元图片。每次 build 会重新获取。
 
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+### Images in Post Content (正文插图)
+
+```mdx
+{/* 同目录图片 */}
+![alt text](./screenshot.png)
+
+{/* public/ 目录图片 */}
+![alt text](/images/diagram.png)
+
+{/* 外部图片 */}
+![alt text](https://example.com/photo.jpg)
+```
+
+### Creating a New Post
+
+```bash
+# 1. 创建目录
+mkdir src/content/blog/my-new-post
+
+# 2. 创建文章文件
+# src/content/blog/my-new-post/index.mdx
+
+# 3. (可选) 放入封面图和插图到同目录
+# src/content/blog/my-new-post/cover.jpg
+# src/content/blog/my-new-post/diagram.png
+```
