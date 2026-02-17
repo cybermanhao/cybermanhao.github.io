@@ -75,7 +75,7 @@ const extraCount = Math.max(0, allTags.length - VISIBLE_COUNT);
 
   <div id="post-grid" class="grid gap-4 md:grid-cols-2">
     {posts.map((post, i) => (
-      <div data-tags={post.data.tags.join(',')}>
+      <div data-tags={post.data.tags.join(',')} class="h-full">
         <FadeContent client:visible delay={i * 80} duration={500} blur={true}>
           <PostCard
             title={post.data.title}
