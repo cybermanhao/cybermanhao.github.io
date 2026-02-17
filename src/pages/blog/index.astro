@@ -5,7 +5,6 @@ import { getCollection } from 'astro:content';
 import PostCard from '../../components/PostCard.astro';
 import FadeContent from '../../components/FadeContent';
 import SplitText from '../../components/SplitText';
-import { Badge } from '../../components/ui/badge';
 import { getPostSlug, prefetchWaifuBatch, resolvePostCover } from '../../lib/blog';
 
 const allPosts = (await getCollection('blog'))
@@ -16,7 +15,7 @@ const allPosts = (await getCollection('blog'))
 const uncoveredCount = allPosts.filter((p) => !p.data.cover).length;
 await prefetchWaifuBatch(uncoveredCount);
 
-const postsWithCovers = await Promise.all(
+const posts = await Promise.all(
   allPosts.map(async (post) => ({
     ...post,
     cover: await resolvePostCover(post.data.cover) as ImageMetadata | string | undefined,
@@ -24,11 +23,8 @@ const postsWithCovers = await Promise.all(
 );
 
 const allTags = [...new Set(allPosts.flatMap((p) => p.data.tags))].sort();
-
-const selectedTag = Astro.url.searchParams.get('tag');
-const posts = selectedTag
-  ? postsWithCovers.filter((p) => p.data.tags.includes(selectedTag))
-  : postsWithCovers;
+const VISIBLE_COUNT = 10;
+const extraCount = Math.max(0, allTags.length - VISIBLE_COUNT);
 ---
 
 <BaseLayout title="博客 — 限制解除！" description="所有博客文章">
@@ -47,40 +43,39 @@ const posts = selectedTag
   </div>
 
   {allTags.length > 0 && (
-    <div class="mb-8 flex flex-wrap gap-2">
-      <a href="/blog">
-        <Badge
-          variant={!selectedTag ? 'default' : 'outline'}
-          className="cursor-pointer font-tech text-xs hover:bg-primary/10 transition-colors"
+    <div id="tag-bar" class="mb-8 flex flex-wrap items-center gap-2">
+      <button
+        data-tag=""
+        data-active
+        class="tag-btn inline-flex items-center justify-center rounded-full border px-2 py-0.5 text-xs font-medium font-tech cursor-pointer transition-colors"
+      >
+        全部
+      </button>
+      {allTags.map((tag, i) => (
+        <button
+          data-tag={tag}
+          class="tag-btn inline-flex items-center justify-center rounded-full border px-2 py-0.5 text-xs font-medium font-tech cursor-pointer transition-colors"
+          {...(i >= VISIBLE_COUNT ? { 'data-extra-tag': '' } : {})}
         >
-          全部
-        </Badge>
-      </a>
-      {allTags.map((tag) => (
-        <a href={`/blog?tag=${encodeURIComponent(tag)}`}>
-          <Badge
-            variant={selectedTag === tag ? 'default' : 'outline'}
-            className="cursor-pointer font-tech text-xs hover:bg-primary/10 transition-colors"
-          >
-            #{tag}
-          </Badge>
-        </a>
+          #{tag}
+        </button>
       ))}
+      {extraCount > 0 && (
+        <button
+          id="tag-toggle"
+          class="inline-flex items-center justify-center rounded-full border border-dashed border-border px-2 py-0.5 text-xs font-medium font-tech cursor-pointer text-muted-foreground hover:text-foreground transition-colors"
+        >
+          展开 (+{extraCount})
+        </button>
+      )}
     </div>
   )}
 
-  {selectedTag && (
-    <div class="mb-6 flex items-center gap-2 text-sm text-muted-foreground">
-      <span>筛选: <strong class="text-foreground">#{selectedTag}</strong></span>
-      <a href="/blog" class="text-primary hover:underline text-xs">清除</a>
-    </div>
-  )}
+  <p id="empty-msg" class="text-muted-foreground py-12 text-center" style="display:none">没有找到相关文章</p>
 
-  {posts.length === 0 ? (
-    <p class="text-muted-foreground py-12 text-center">没有找到相关文章</p>
-  ) : (
-    <div class="grid gap-4 md:grid-cols-2">
-      {posts.map((post, i) => (
+  <div id="post-grid" class="grid gap-4 md:grid-cols-2">
+    {posts.map((post, i) => (
+      <div data-tags={post.data.tags.join(',')}>
         <FadeContent client:visible delay={i * 80} duration={500} blur={true}>
           <PostCard
             title={post.data.title}
@@ -91,7 +86,78 @@ const posts = selectedTag
             cover={post.cover}
           />
         </FadeContent>
-      ))}
-    </div>
-  )}
+      </div>
+    ))}
+  </div>
 </BaseLayout>
+
+<style>
+  .tag-btn {
+    border-color: var(--color-border);
+    color: var(--color-foreground);
+  }
+  .tag-btn:hover {
+    background-color: color-mix(in srgb, var(--color-primary) 10%, transparent);
+  }
+  .tag-btn[data-active] {
+    background-color: var(--color-primary);
+    color: var(--color-primary-foreground);
+    border-color: var(--color-primary);
+  }
+  /* Extra tags hidden by default, shown when tag-bar has data-expanded */
+  .tag-btn[data-extra-tag] {
+    display: none;
+  }
+  #tag-bar[data-expanded] .tag-btn[data-extra-tag] {
+    display: inline-flex;
+  }
+</style>
+
+<script>
+  const tagBar = document.getElementById('tag-bar');
+  const toggleBtn = document.getElementById('tag-toggle');
+  const postGrid = document.getElementById('post-grid');
+  const emptyMsg = document.getElementById('empty-msg');
+  if (!tagBar || !postGrid) throw new Error('Missing DOM');
+
+  const tagBtns = tagBar.querySelectorAll<HTMLButtonElement>('.tag-btn');
+  const extraTags = tagBar.querySelectorAll<HTMLButtonElement>('[data-extra-tag]');
+  const postItems = postGrid.querySelectorAll<HTMLDivElement>('[data-tags]');
+  let expanded = false;
+
+  // Collapse / Expand
+  toggleBtn?.addEventListener('click', () => {
+    expanded = !expanded;
+    if (expanded) {
+      tagBar.setAttribute('data-expanded', '');
+    } else {
+      tagBar.removeAttribute('data-expanded');
+    }
+    toggleBtn.textContent = expanded
+      ? '收起'
+      : `展开 (+${extraTags.length})`;
+  });
+
+  // Tag filtering
+  tagBtns.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const tag = btn.dataset.tag!;
+
+      // Update active state
+      tagBtns.forEach((b) => b.removeAttribute('data-active'));
+      btn.setAttribute('data-active', '');
+
+      // Filter posts
+      let visibleCount = 0;
+      postItems.forEach((item) => {
+        const tags = item.dataset.tags!.split(',');
+        const show = tag === '' || tags.includes(tag);
+        (item as HTMLElement).style.display = show ? '' : 'none';
+        if (show) visibleCount++;
+      });
+
+      // Empty message
+      if (emptyMsg) emptyMsg.style.display = visibleCount > 0 ? 'none' : '';
+    });
+  });
+</script>
