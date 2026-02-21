@@ -39,7 +39,8 @@
       "Bash(npx astro dev:*)",
       "Bash(ffmpeg:*)",
       "Bash(ls:*)",
-      "Bash(python -m json.tool:*)"
+      "Bash(python -m json.tool:*)",
+      "Bash(grep :4321:*)"
     ]
   },
   "enableAllProjectMcpServers": true,
