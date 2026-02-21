@@ -195,6 +195,24 @@
   max-width: none;
 }
 
+/* Mobile overflow fixes for titles and tables */
+@media (max-width: 640px) {
+  .prose :where(h1):not(:where([class~="not-prose"] *)) {
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .prose :where(table):not(:where([class~="not-prose"] *)) {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .prose :where(table):not(:where([class~="not-prose"] *)) :where(th, td) {
+    white-space: nowrap;
+  }
+}
+
 .prose :where(a):not(:where([class~="not-prose"] *)) {
   color: var(--primary);
   text-decoration-color: oklch(0.55 0.2 192 / 40%);
