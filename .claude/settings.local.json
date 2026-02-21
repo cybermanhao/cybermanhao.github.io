@@ -38,7 +38,8 @@
       "WebFetch(domain:api.waifu.pics)",
       "Bash(npx astro dev:*)",
       "Bash(ffmpeg:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(python -m json.tool:*)"
     ]
   },
   "enableAllProjectMcpServers": true,
