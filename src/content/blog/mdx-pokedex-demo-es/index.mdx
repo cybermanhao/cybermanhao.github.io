@@ -1,0 +1,89 @@
+---
+title: 'MDX en Acción: Metiendo una Pokédex en una Entrada de Blog'
+description: 'Cómo incrustar una Pokédex interactiva y multilingüe en un blog de Astro con MDX — y una breve explicación de qué es MDX en realidad'
+pubDate: 2026-02-14
+updatedDate: 2026-02-20
+tags: ['mdx', 'react', 'graphql', 'react-bits']
+lang: es
+translationOf: mdx-pokedex-demo
+---
+
+import Pokedex from '../../../components/Pokedex';
+
+# MDX en Acción: Metiendo una Pokédex en una Entrada de Blog
+
+Un día decidí que quería una Pokédex interactiva dentro de una entrada de blog.
+
+Una persona normal pensaría: eso es imposible, Markdown es solo texto plano.
+
+Entonces descubrí MDX.
+
+## Qué es MDX
+
+MDX = Markdown + JSX.
+
+En pocas palabras, puedes escribir componentes de React directamente dentro de un archivo `.mdx`, así:
+
+```mdx
+# Este es un artículo normal
+
+Algo de contenido...
+
+<MyComponent client:load />
+
+Más contenido...
+```
+
+El resto lo maneja Astro. Renderiza el Markdown como HTML e hidrata los componentes de React convirtiéndolos en islas interactivas.
+
+## Véalo en Acción
+
+Escribí un componente Pokédex y lo llamé aquí:
+
+```mdx
+import Pokedex from '../../../components/Pokedex';
+
+<Pokedex client:load />
+```
+
+Solo esas dos líneas. Luego, tras *un pequeño* retoque —
+
+<Pokedex client:load />
+
+Búsqueda multilingüe en chino, inglés, japonés y español. 18 filtros de tipo. Consultas con debounce. Paginación.
+
+(«Un pequeño retoque».)
+
+## Qué significa `client:load`
+
+Astro no ejecuta nada de JS en el cliente por defecto. Para que un componente de React cobre vida, necesitas una directiva de hidratación:
+
+| Directiva | Momento | Mejor para |
+|---|---|---|
+| `client:load` | Inmediatamente al cargar | Necesita interacción de inmediato (como una Pokédex) |
+| `client:idle` | Cuando el navegador está inactivo | Widgets de baja prioridad |
+| `client:visible` | Al hacer scroll hasta verlo | Componentes más abajo en la página |
+| `client:only="react"` | Solo cliente, omite SSR | Componentes que necesitan APIs del navegador |
+
+La Pokédex empieza a obtener datos en cuanto carga la página, así que `client:load` es la opción.
+
+## Un Detalle con los Imports
+
+Dentro de MDX, los imports deben usar **rutas relativas** — los alias de rutas no funcionan:
+
+```mdx
+✅ import Pokedex from '../../../components/Pokedex';
+❌ import Pokedex from '@/components/Pokedex';
+```
+
+Astro resuelve el MDX en tiempo de compilación y los alias pueden no estar disponibles en esa etapa. Unos cuantos `../` adicionales no le hacen daño a nadie.
+
+## En Resumen
+
+MDX en una oración: **escribe React dentro de Markdown, escribe Markdown dentro de React**.
+
+En cuanto a las llamadas GraphQL a PokeAPI, los mapeos multilingües, la búsqueda con debounce… todo eso forma parte del «pequeño retoque». No es importante.
+
+Lo que importa es que mi entrada de blog ahora tiene una Pokédex.
+
+Eso es lo único que verdaderamente importa.

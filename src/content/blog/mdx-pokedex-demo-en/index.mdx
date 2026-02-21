@@ -1,0 +1,89 @@
+---
+title: 'MDX in Action: Stuffing a Pokédex into a Blog Post'
+description: 'Embedding an interactive, multilingual Pokédex into an Astro blog with MDX — and a brief explanation of what MDX actually is'
+pubDate: 2026-02-14
+updatedDate: 2026-02-20
+tags: ['mdx', 'react', 'graphql', 'react-bits']
+lang: en
+translationOf: mdx-pokedex-demo
+---
+
+import Pokedex from '../../../components/Pokedex';
+
+# MDX in Action: Stuffing a Pokédex into a Blog Post
+
+One day I decided I wanted an interactive Pokédex inside a blog post.
+
+A normal person would think: that's impossible, Markdown is just plain text.
+
+Then I discovered MDX.
+
+## What Is MDX
+
+MDX = Markdown + JSX.
+
+Simply put, you can write React components directly inside a `.mdx` file, like this:
+
+```mdx
+# This is a normal article
+
+Some content...
+
+<MyComponent client:load />
+
+More content...
+```
+
+The rest is handled by Astro. It renders the Markdown as HTML and hydrates the React components into interactive islands.
+
+## See It in Action
+
+I wrote a Pokédex component, then called it here:
+
+```mdx
+import Pokedex from '../../../components/Pokedex';
+
+<Pokedex client:load />
+```
+
+Just those two lines. Then, after a *tiny bit* of tweaking —
+
+<Pokedex client:load />
+
+Multilingual search in Chinese, English, Japanese, and Spanish. 18 type filters. Debounced queries. Pagination.
+
+("Tiny bit.")
+
+## What Does `client:load` Mean
+
+Astro runs zero client-side JS by default. To bring a React component to life, you need a hydration directive:
+
+| Directive | Timing | Best for |
+|---|---|---|
+| `client:load` | Immediately on load | Needs interaction right away (like a Pokédex) |
+| `client:idle` | When the browser is idle | Low-priority widgets |
+| `client:visible` | When scrolled into view | Components lower on the page |
+| `client:only="react"` | Client-only, skips SSR | Components that need browser APIs |
+
+The Pokédex starts fetching data as soon as the page loads, so `client:load` it is.
+
+## One Gotcha with Imports
+
+Inside MDX, imports must use **relative paths** — path aliases won't work:
+
+```mdx
+✅ import Pokedex from '../../../components/Pokedex';
+❌ import Pokedex from '@/components/Pokedex';
+```
+
+Astro resolves MDX at build time, and aliases may not be available at that stage. A few extra `../` never hurt anyone.
+
+## Wrapping Up
+
+MDX in one sentence: **write React inside Markdown, write Markdown inside React**.
+
+As for the PokeAPI GraphQL calls, the multilingual mappings, the debounced search… those are all part of the "tiny bit" of tweaking. Not important.
+
+What matters is that my blog post now has a Pokédex.
+
+That's the only thing that truly matters.

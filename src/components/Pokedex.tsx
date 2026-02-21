@@ -182,10 +182,11 @@ export default function Pokedex() {
   const [loading, setLoading]           = useState(true);
   const [error, setError]               = useState('');
   const [inputValue, setInputValue]     = useState('');
-  const [activeSearch, setActiveSearch] = useState('');   // committed on button click
+  const [activeSearch, setActiveSearch] = useState('');
   const [selectedType, setSelectedType] = useState('');
   const [locale, setLocale]             = useState('zh');
   const [page, setPage]                 = useState(1);
+  const [isDebouncing, setIsDebouncing] = useState(false);
   const topRef = useRef<HTMLDivElement>(null);
 
   const pokeLocale = LOCALE_MAP[locale] || 'en';
@@ -198,6 +199,17 @@ export default function Pokedex() {
     window.addEventListener('locale-changed', h);
     return () => window.removeEventListener('locale-changed', h);
   }, []);
+
+  // Debounce: auto-commit inputValue → activeSearch after 500ms
+  useEffect(() => {
+    setIsDebouncing(true);
+    const t = setTimeout(() => {
+      setActiveSearch(inputValue);
+      setPage(1);
+      setIsDebouncing(false);
+    }, 500);
+    return () => { clearTimeout(t); setIsDebouncing(false); };
+  }, [inputValue]);
 
   const doFetch = useCallback(async (search: string, type: string, pl: string, pg: number) => {
     setLoading(true);
@@ -245,7 +257,9 @@ export default function Pokedex() {
     doFetch(activeSearch, selectedType, pokeLocale, page);
   }, [activeSearch, selectedType, pokeLocale, page, doFetch]);
 
+  // Immediate search (button / Enter)
   const handleSearch = () => {
+    setIsDebouncing(false);
     setActiveSearch(inputValue);
     setPage(1);
   };
@@ -318,13 +332,26 @@ export default function Pokedex() {
 
         {/* Search input + buttons */}
         <div className="flex gap-2 flex-1">
-          <Input
-            placeholder={u('placeholder')}
-            value={inputValue}
-            onChange={e => setInputValue(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && handleSearch()}
-            className="font-tech flex-1"
-          />
+          <div className="relative flex-1">
+            <Input
+              placeholder={u('placeholder')}
+              value={inputValue}
+              onChange={e => setInputValue(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && handleSearch()}
+              className="font-tech pr-7"
+            />
+            {isDebouncing && (
+              <span className="absolute right-2.5 top-1/2 -translate-y-1/2 flex gap-0.5">
+                {[0, 1, 2].map(i => (
+                  <span
+                    key={i}
+                    className="block h-1 w-1 rounded-full bg-primary animate-bounce"
+                    style={{ animationDelay: `${i * 0.15}s` }}
+                  />
+                ))}
+              </span>
+            )}
+          </div>
           <button
             onClick={handleSearch}
             className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-xs font-tech hover:bg-primary/90 transition-colors shrink-0"

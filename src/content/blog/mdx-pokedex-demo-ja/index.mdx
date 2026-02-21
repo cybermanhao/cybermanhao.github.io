@@ -1,0 +1,89 @@
+---
+title: 'MDX 実践：ブログ記事にポケモン図鑑を詰め込む'
+description: 'MDX を使って Astro ブログに多言語対応のインタラクティブなポケモン図鑑を埋め込む — そして MDX とは何かを軽く説明する'
+pubDate: 2026-02-14
+updatedDate: 2026-02-20
+tags: ['mdx', 'react', 'graphql', 'react-bits']
+lang: ja
+translationOf: mdx-pokedex-demo
+---
+
+import Pokedex from '../../../components/Pokedex';
+
+# MDX 実践：ブログ記事にポケモン図鑑を詰め込む
+
+ある日、ブログ記事の中にインタラクティブなポケモン図鑑を置きたくなった。
+
+普通の人なら思うはずだ：それは無理だ、Markdown はただのプレーンテキストだと。
+
+そして私は MDX を発見した。
+
+## MDX とは何か
+
+MDX = Markdown + JSX。
+
+簡単に言えば、`.mdx` ファイルの中に React コンポーネントを直接書けるということだ：
+
+```mdx
+# これは普通の記事
+
+本文の内容...
+
+<MyComponent client:load />
+
+続きを書く...
+```
+
+あとは Astro がやってくれる。Markdown を HTML にレンダリングし、React コンポーネントをインタラクティブな island として hydrate する。
+
+## 実際に見てみよう
+
+図鑑コンポーネントを書いて、ここで呼び出した：
+
+```mdx
+import Pokedex from '../../../components/Pokedex';
+
+<Pokedex client:load />
+```
+
+たったこの2行。そして*少しだけ*手を加えると——
+
+<Pokedex client:load />
+
+中国語・英語・日本語・スペイン語での検索、18タイプのフィルター、デバウンスクエリ、ページネーション対応。
+
+（「少しだけ」）
+
+## `client:load` の意味
+
+Astro はデフォルトでクライアントサイド JS を一切実行しない。React コンポーネントを本当に動かすには、hydration ディレクティブが必要だ：
+
+| ディレクティブ | タイミング | 適した用途 |
+|---|---|---|
+| `client:load` | ページ読み込み時すぐ | すぐ操作が必要なもの（図鑑など） |
+| `client:idle` | ブラウザがアイドル時 | 優先度の低いウィジェット |
+| `client:visible` | スクロールで見えた時 | ページ下部のコンポーネント |
+| `client:only="react"` | クライアントのみ、SSR スキップ | ブラウザ API が必要なもの |
+
+図鑑はページ読み込みと同時にデータ取得を始める必要があるので、`client:load` を選んだ。
+
+## import パスの落とし穴
+
+MDX 内の import は**相対パス**を使わなければならない — パスエイリアスは使えない：
+
+```mdx
+✅ import Pokedex from '../../../components/Pokedex';
+❌ import Pokedex from '@/components/Pokedex';
+```
+
+Astro はビルド時に MDX を解析するため、その段階ではエイリアスが利用できない場合がある。`../` を数個余分に打つだけの話で、使えないわけではない。
+
+## まとめ
+
+MDX を一言で：**Markdown の中に React を書き、React の中に Markdown を書く**。
+
+図鑑の PokeAPI GraphQL 呼び出し、多言語マッピング、デバウンス検索……あれらは全部「少しだけの手直し」なので重要ではない。
+
+重要なのは、今私のブログ記事にポケモン図鑑があるということだ。
+
+それだけが本当に重要なことだ。
