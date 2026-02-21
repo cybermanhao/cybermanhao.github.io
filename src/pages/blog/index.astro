@@ -49,7 +49,7 @@ const extraCount = Math.max(0, allTags.length - VISIBLE_COUNT);
         data-active
         class="tag-btn inline-flex items-center justify-center rounded-full border px-2 py-0.5 text-xs font-medium font-tech cursor-pointer transition-colors"
       >
-        全部
+        <span data-i18n="blog.all">全部</span>
       </button>
       {allTags.map((tag, i) => (
         <button
@@ -71,11 +71,16 @@ const extraCount = Math.max(0, allTags.length - VISIBLE_COUNT);
     </div>
   )}
 
-  <p id="empty-msg" class="text-muted-foreground py-12 text-center" style="display:none">没有找到相关文章</p>
+  <!-- Language notice for non-zh visitors -->
+  <div data-lang-notice class="mb-6 px-4 py-2.5 rounded-lg bg-muted/50 border border-border text-sm text-muted-foreground text-center font-tech" style="display:none">
+    The blogger mainly writes in Chinese ✧(≖ ◡ ≖✿)
+  </div>
+
+  <p id="empty-msg" class="text-muted-foreground py-12 text-center" data-i18n="blog.noResults" style="display:none">没有找到相关文章</p>
 
   <div id="post-grid" class="grid gap-4 md:grid-cols-2">
     {posts.map((post, i) => (
-      <div data-tags={post.data.tags.join(',')} class="h-full">
+      <div data-tags={post.data.tags.join(',')} data-lang={post.data.lang || 'zh'} class="h-full">
         <FadeContent client:visible delay={i * 80} duration={500} blur={true}>
           <PostCard
             title={post.data.title}
@@ -84,6 +89,7 @@ const extraCount = Math.max(0, allTags.length - VISIBLE_COUNT);
             tags={post.data.tags}
             slug={getPostSlug(post.id)}
             cover={post.cover}
+            lang={post.data.lang || 'zh'}
           />
         </FadeContent>
       </div>
@@ -125,7 +131,12 @@ const extraCount = Math.max(0, allTags.length - VISIBLE_COUNT);
   const postItems = postGrid.querySelectorAll<HTMLDivElement>('[data-tags]');
   let expanded = false;
 
-  // Collapse / Expand
+  // Collapse / Expand (i18n-aware)
+  import { getLocale, t } from '../../lib/i18n';
+  const locale = getLocale();
+  const expandLabel = (t['blog.expand']?.[locale] || '展开') + ` (+${extraTags.length})`;
+  const collapseLabel = t['blog.collapse']?.[locale] || '收起';
+
   toggleBtn?.addEventListener('click', () => {
     expanded = !expanded;
     if (expanded) {
@@ -133,9 +144,7 @@ const extraCount = Math.max(0, allTags.length - VISIBLE_COUNT);
     } else {
       tagBar.removeAttribute('data-expanded');
     }
-    toggleBtn.textContent = expanded
-      ? '收起'
-      : `展开 (+${extraTags.length})`;
+    toggleBtn.textContent = expanded ? collapseLabel : expandLabel;
   });
 
   // Tag filtering
@@ -159,5 +168,11 @@ const extraCount = Math.max(0, allTags.length - VISIBLE_COUNT);
       // Empty message
       if (emptyMsg) emptyMsg.style.display = visibleCount > 0 ? 'none' : '';
     });
+  });
+
+  // Reorder: current locale posts first via CSS order
+  postItems.forEach((item) => {
+    const postLang = (item as HTMLElement).dataset.lang || 'zh';
+    (item as HTMLElement).style.order = postLang === locale ? '-1' : '0';
   });
 </script>

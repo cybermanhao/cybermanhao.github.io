@@ -1,0 +1,55 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Shuffle from '../../components/Shuffle';
+import DecryptedText from '../../components/DecryptedText';
+import Magnet from '../../components/Magnet';
+---
+
+<BaseLayout title="施工中 — 限制解除！">
+  <div class="flex flex-col items-center justify-center min-h-[60vh] text-center">
+    <div class="mb-6">
+      <Shuffle
+        client:load
+        text="🚧 WIP"
+        className="text-7xl md:text-8xl font-bold font-tech text-primary"
+        tag="h1"
+        textAlign="center"
+        duration={0.5}
+        stagger={0.08}
+        shuffleTimes={3}
+        scrambleCharset="░▒▓█▄▀■□◆◇●○★☆♦♠♣♥⚡⚙"
+        shuffleDirection="down"
+        triggerOnHover={true}
+      />
+    </div>
+
+    <div class="mb-8 max-w-md">
+      <DecryptedText
+        client:load
+        text="UNDER CONSTRUCTION — 施工中"
+        speed={40}
+        sequential={true}
+        revealDirection="center"
+        animateOn="view"
+        className="text-xl md:text-2xl text-muted-foreground font-tech"
+        encryptedClassName="text-primary/30"
+      />
+    </div>
+
+    <p class="text-sm text-muted-foreground mb-8 font-tech" data-i18n="comingSoon.text">
+      这个项目正在紧锣密鼓地开发中，敬请期待！
+    </p>
+
+    <Magnet client:load padding={60} magnetStrength={3}>
+      <a
+        href="/projects"
+        class="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-primary text-primary-foreground font-tech text-sm font-medium border-glow hover:scale-105 transition-transform"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        <span data-i18n="comingSoon.back">返回项目</span>
+      </a>
+    </Magnet>
+  </div>
+</BaseLayout>

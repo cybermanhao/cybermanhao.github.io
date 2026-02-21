@@ -36,7 +36,9 @@
       "Bash(npx astro build:*)",
       "Bash(pnpm ls:*)",
       "WebFetch(domain:api.waifu.pics)",
-      "Bash(npx astro dev:*)"
+      "Bash(npx astro dev:*)",
+      "Bash(ffmpeg:*)",
+      "Bash(ls:*)"
     ]
   },
   "enableAllProjectMcpServers": true,

@@ -22,20 +22,25 @@ const readingTime = Math.max(1, Math.ceil(charCount / 600));
 
 <header class="mb-10 not-prose">
   {cover && (
-    <div class="mb-6 -mx-2 md:-mx-4 rounded-xl overflow-hidden">
+    <div class="mb-6 -mx-2 md:-mx-4 rounded-xl overflow-hidden relative bg-muted crt-overlay">
+      <div class="shimmer-overlay absolute inset-0 flex items-center justify-center aspect-video">
+        <div class="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-foreground/5 to-transparent"></div>
+      </div>
       {isLocalImage ? (
         <Image
           src={cover as ImageMetadata}
           alt={title}
           widths={[600, 900, 1200]}
           sizes="(max-width: 768px) 100vw, 720px"
-          class="w-full aspect-video object-cover object-[center_20%]"
+          class="w-full aspect-video object-cover object-[center_20%] opacity-0 transition-opacity duration-500"
+          onload="this.classList.remove('opacity-0');this.classList.add('opacity-100');this.parentElement.querySelector('.shimmer-overlay').remove()"
         />
       ) : (
         <img
           src={cover as string}
           alt={title}
-          class="w-full aspect-video object-cover object-[center_20%]"
+          class="w-full aspect-video object-cover object-[center_20%] opacity-0 transition-opacity duration-500"
+          onload="this.classList.remove('opacity-0');this.classList.add('opacity-100');this.parentElement.querySelector('.shimmer-overlay').remove()"
         />
       )}
     </div>

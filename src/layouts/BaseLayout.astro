@@ -34,14 +34,18 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <link rel="alternate" type="application/rss+xml" title={SITE_TITLE} href="/rss.xml" />
     <title>{title}</title>
 
-    <!-- Dark mode init (runs before paint to prevent flash) -->
+    <!-- Dark mode + locale init (runs before paint to prevent flash) -->
     <script is:inline>
       (function() {
-        const theme = localStorage.getItem('theme');
+        var theme = localStorage.getItem('theme');
         if (theme === 'light') {
           document.documentElement.classList.remove('dark');
         } else {
           document.documentElement.classList.add('dark');
+        }
+        var locale = localStorage.getItem('locale');
+        if (locale && ['zh','en','ja','es'].includes(locale)) {
+          document.documentElement.lang = locale === 'zh' ? 'zh-CN' : locale;
         }
       })();
     </script>
@@ -69,5 +73,10 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
       </main>
       <Footer />
     </ClickSpark>
+    <script>
+      import { getLocale, applyTranslations } from '../lib/i18n';
+      const locale = getLocale();
+      if (locale !== 'zh') applyTranslations(locale);
+    </script>
   </body>
 </html>

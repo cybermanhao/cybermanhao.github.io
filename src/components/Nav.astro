@@ -2,6 +2,7 @@
 import { SITE_TITLE, SITE_NAV } from '../consts';
 import Shuffle from './Shuffle';
 import ThemeToggle from './ThemeToggle';
+import LocaleSwitcher from './LocaleSwitcher.astro';
 ---
 
 <header class="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
@@ -30,7 +31,7 @@ import ThemeToggle from './ThemeToggle';
           href={item.href}
           class="px-3 py-1.5 text-sm font-medium text-muted-foreground hover:text-primary transition-colors rounded-md hover:bg-muted"
         >
-          {item.label}
+          <span data-i18n={item.i18nKey}>{item.label}</span>
         </a>
       ))}
       <button
@@ -43,10 +44,14 @@ import ThemeToggle from './ThemeToggle';
         </svg>
       </button>
       <ThemeToggle client:load />
+      <div class="ml-1 border-l border-border pl-2">
+        <LocaleSwitcher />
+      </div>
     </div>
 
     <!-- Mobile hamburger -->
     <div class="flex md:hidden items-center gap-2">
+      <LocaleSwitcher />
       <ThemeToggle client:load />
       <button
         id="mobile-menu-toggle"
@@ -68,7 +73,7 @@ import ThemeToggle from './ThemeToggle';
           href={item.href}
           class="block px-3 py-2 text-sm font-medium text-muted-foreground hover:text-primary hover:bg-muted rounded-md transition-colors"
         >
-          {item.label}
+          <span data-i18n={item.i18nKey}>{item.label}</span>
         </a>
       ))}
     </div>

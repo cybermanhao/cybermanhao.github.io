@@ -1,5 +1,28 @@
 import type { ImageMetadata } from 'astro';
 
+/** Language flag emoji mapping */
+export const LANG_FLAGS: Record<string, string> = {
+  zh: '🇨🇳',
+  en: '🇬🇧',
+  ja: '🇯🇵',
+  es: '🇪🇸',
+};
+
+/** Find related translations for a post */
+export function getTranslations(
+  currentSlug: string,
+  currentTranslationOf: string | undefined,
+  allPosts: Array<{ slug: string; data: { lang?: string; translationOf?: string } }>
+): Array<{ slug: string; lang: string }> {
+  const originSlug = currentTranslationOf || currentSlug;
+  return allPosts
+    .filter((p) => {
+      const pOrigin = p.data.translationOf || p.slug;
+      return pOrigin === originSlug && p.slug !== currentSlug;
+    })
+    .map((p) => ({ slug: p.slug, lang: p.data.lang || 'zh' }));
+}
+
 /** Extract slug from post.id (handles subdirectory structure) */
 export function getPostSlug(id: string): string {
   return id.replace(/\/index\.(mdx?|md)$/, '').replace(/\.(mdx?|md)$/, '');

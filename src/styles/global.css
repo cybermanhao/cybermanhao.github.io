@@ -162,24 +162,24 @@
   }
 }
 
-/* ── CRT scanline overlay ── */
-body::after {
+/* ── CRT scanline overlay — applied per-component via .crt-overlay ── */
+.crt-overlay::after {
   content: "";
-  position: fixed;
+  position: absolute;
   inset: 0;
   pointer-events: none;
-  z-index: 9999;
+  z-index: 10;
   background: repeating-linear-gradient(
     0deg,
     transparent,
     transparent 2px,
-    oklch(0 0 0 / 2.5%) 2px,
-    oklch(0 0 0 / 2.5%) 4px
+    oklch(0 0 0 / 4%) 2px,
+    oklch(0 0 0 / 4%) 4px
   );
   opacity: 0;
   transition: opacity 0.3s;
 }
-.dark body::after {
+.dark .crt-overlay::after {
   opacity: 1;
 }
 
@@ -266,9 +266,13 @@ body::after {
   }
 }
 
+@keyframes shimmer {
+  100% { transform: translateX(200%); }
+}
+
 /* ── Reduced motion ── */
 @media (prefers-reduced-motion: reduce) {
-  body::after {
+  .crt-overlay::after {
     display: none;
   }
   *, *::before, *::after {

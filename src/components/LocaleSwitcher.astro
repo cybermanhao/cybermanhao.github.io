@@ -1,0 +1,57 @@
+---
+import { LOCALES, LOCALE_LABELS } from '../lib/i18n';
+---
+
+<div id="locale-switcher" class="flex items-center gap-0.5">
+  {LOCALES.map((locale) => (
+    <button
+      data-locale={locale}
+      class="locale-btn px-1.5 py-0.5 text-[10px] font-tech rounded cursor-pointer transition-colors"
+      {...(locale === 'zh' ? { 'data-active': '' } : {})}
+    >
+      {LOCALE_LABELS[locale]}
+    </button>
+  ))}
+</div>
+
+<style>
+  .locale-btn {
+    color: var(--color-muted-foreground);
+  }
+  .locale-btn:hover {
+    color: var(--color-foreground);
+  }
+  .locale-btn[data-active] {
+    color: var(--color-primary);
+    background-color: color-mix(in srgb, var(--color-primary) 12%, transparent);
+  }
+</style>
+
+<script>
+  import { getLocale, setLocale, type Locale } from '../lib/i18n';
+
+  const switcher = document.getElementById('locale-switcher');
+  if (switcher) {
+    const btns = switcher.querySelectorAll<HTMLButtonElement>('.locale-btn');
+
+    // Init: highlight stored locale
+    const current = getLocale();
+    btns.forEach((btn) => {
+      if (btn.dataset.locale === current) {
+        btn.setAttribute('data-active', '');
+      } else {
+        btn.removeAttribute('data-active');
+      }
+    });
+
+    // Click handler
+    btns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const locale = btn.dataset.locale as Locale;
+        btns.forEach((b) => b.removeAttribute('data-active'));
+        btn.setAttribute('data-active', '');
+        setLocale(locale);
+      });
+    });
+  }
+</script>

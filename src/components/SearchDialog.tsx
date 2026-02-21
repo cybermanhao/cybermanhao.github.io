@@ -1,5 +1,17 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { Search, X } from 'lucide-react';
+import { t, type Locale } from '../lib/i18n';
+
+function tr(key: string, locale: Locale): string {
+  return t[key]?.[locale] ?? t[key]?.zh ?? key;
+}
+
+function getCurrentLocale(): Locale {
+  if (typeof document === 'undefined') return 'zh';
+  const lang = document.documentElement.lang;
+  const l = lang === 'zh-CN' ? 'zh' : lang;
+  return (['zh', 'en', 'ja', 'es'].includes(l) ? l : 'zh') as Locale;
+}
 
 export default function SearchDialog() {
   const [open, setOpen] = useState(false);
@@ -9,18 +21,17 @@ export default function SearchDialog() {
 
   const loadPagefind = useCallback(async () => {
     if (loaded.current || !containerRef.current) return;
+    const locale = getCurrentLocale();
     try {
-      // Pagefind is loaded at runtime from build output — use window global approach
       const pagefindPath = '/pagefind/pagefind.js';
       // @ts-ignore
       const pagefind = await import(/* @vite-ignore */ pagefindPath);
       await pagefind.init();
 
-      // Create the Pagefind UI
       containerRef.current.innerHTML = '';
       const input = document.createElement('input');
       input.type = 'text';
-      input.placeholder = '搜索文章...';
+      input.placeholder = tr('search.placeholder', locale);
       input.className =
         'w-full px-4 py-3 bg-muted rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary font-tech text-sm';
 
@@ -55,7 +66,7 @@ export default function SearchDialog() {
 
         if (items.length === 0) {
           results.innerHTML =
-            '<div class="px-4 py-3 text-muted-foreground text-sm">未找到匹配的文章</div>';
+            `<div class="px-4 py-3 text-muted-foreground text-sm">${tr('search.noResults', locale)}</div>`;
         }
       });
 
@@ -64,7 +75,7 @@ export default function SearchDialog() {
     } catch {
       if (containerRef.current) {
         containerRef.current.innerHTML =
-          '<div class="text-muted-foreground text-sm px-4 py-3">搜索功能需要先构建站点 (pnpm build)</div>';
+          `<div class="text-muted-foreground text-sm px-4 py-3">${tr('search.needBuild', locale)}</div>`;
       }
     }
   }, []);
@@ -101,6 +112,8 @@ export default function SearchDialog() {
     }
   }, []);
 
+  const locale = getCurrentLocale();
+
   return (
     <dialog
       ref={dialogRef}
@@ -111,7 +124,7 @@ export default function SearchDialog() {
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2 text-muted-foreground text-sm">
             <Search className="h-4 w-4" />
-            <span>搜索</span>
+            <span>{tr('search.label', locale)}</span>
             <kbd className="ml-2 px-1.5 py-0.5 text-xs bg-muted rounded border border-border font-tech">
               Ctrl+K
             </kbd>

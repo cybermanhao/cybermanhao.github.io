@@ -77,7 +77,7 @@ import ScrollReveal from '../components/ScrollReveal';
   <!-- Social Links -->
   <FadeContent client:visible delay={200} duration={800} blur={true}>
     <section class="mb-12">
-      <h2 class="text-lg font-bold font-tech mb-6">联系方式</h2>
+      <h2 class="text-lg font-bold font-tech mb-6" data-i18n="about.contact">联系方式</h2>
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <Magnet client:visible padding={50} magnetStrength={2}>
           <a
@@ -142,7 +142,7 @@ import ScrollReveal from '../components/ScrollReveal';
   <!-- Resume Download -->
   <FadeContent client:visible delay={300} duration={800} blur={true}>
     <section class="mb-12">
-      <h2 class="text-lg font-bold font-tech mb-6">简历下载</h2>
+      <h2 class="text-lg font-bold font-tech mb-6" data-i18n="about.resume">简历下载</h2>
       <div class="flex flex-wrap gap-4">
         <StarBorder client:visible as="a" href="/resume.md" download color="cyan" speed="8s" thickness={1} className="!rounded-lg">
           <span class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-tech font-medium bg-card">
@@ -171,7 +171,7 @@ import ScrollReveal from '../components/ScrollReveal';
   <!-- Tech Stack -->
   <FadeContent client:visible delay={400} duration={800} blur={true}>
     <section class="mb-8">
-      <h2 class="text-lg font-bold font-tech mb-6">技术栈</h2>
+      <h2 class="text-lg font-bold font-tech mb-6" data-i18n="about.techStack">技术栈</h2>
       <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
         {[
           { name: 'React', category: 'Frontend' },
